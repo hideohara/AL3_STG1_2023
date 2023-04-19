@@ -6,7 +6,9 @@
 GameScene::GameScene() {}
 
 // デストラクタ
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	delete spriteBG_; // BG
+}
 
 // 初期化
 void GameScene::Initialize() {
@@ -14,6 +16,10 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	// BG(2Dスプライト)
+	textureHandleBG_ = TextureManager::Load("aaaabg.jpg");
+	spriteBG_ = Sprite::Create(textureHandleBG_, {0, 0});
 }
 
 // 更新
@@ -32,6 +38,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+
+	// 背景
+	spriteBG_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

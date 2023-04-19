@@ -48,4 +48,8 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+
+	// BG（スプライト）
+	uint32_t textureHandleBG_ = 0;
+	Sprite* spriteBG_ = nullptr;
 };
