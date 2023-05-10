@@ -40,6 +40,8 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	void PlayerUpdate(); // プレイヤー更新
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -60,4 +62,9 @@ private: // メンバ変数
 	uint32_t textureHandleStage_ = 0;
 	Model* modelStage_ = nullptr;
 	WorldTransform worldTransformStage_;
+
+	// プレイヤー
+	uint32_t textureHandlePlayer_ = 0;
+	Model* modelPlayer_ = nullptr;
+	WorldTransform worldTransformPlayer_;
 };
