@@ -11,6 +11,7 @@ GameScene::~GameScene() {
 	delete spriteBG_;    // BG
 	delete modelStage_;  // ステージ
 	delete modelPlayer_; // プレイヤー
+	delete modelBeam_;   // ビーム
 }
 
 // 初期化
@@ -49,11 +50,18 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::Create();
 	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformPlayer_.Initialize();
+
+	// ビーム
+	textureHandleBeam_ = TextureManager::Load("beam.png");
+	modelBeam_ = Model::Create();
+	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
+	worldTransformBeam_.Initialize();
 }
 
 // 更新
 void GameScene::Update() {
 	PlayerUpdate(); // プレイヤー更新
+	BeamUpdate();   // ビーム更新
 }
 
 // 表示
@@ -92,6 +100,12 @@ void GameScene::Draw() {
 
 	// プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
+
+	// ビーム
+	// 存在フラグが1ならば
+	if (beamFlag_ == 1) {
+		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -146,4 +160,58 @@ void GameScene::PlayerUpdate() {
 	    worldTransformPlayer_.translation_);
 	// 変換行列を定数バッファに転送
 	worldTransformPlayer_.TransferMatrix();
+}
+
+// —------------------------------------------
+// ビーム
+// —------------------------------------------
+
+// ビーム更新
+void GameScene::BeamUpdate() {
+	// ビーム移動
+	BeamMove();
+
+	// ビーム発生
+	BeamBorn();
+
+	// 変換行列を更新
+	worldTransformBeam_.matWorld_ = MakeAffineMatrix(
+	    worldTransformBeam_.scale_, worldTransformBeam_.rotation_,
+	    worldTransformBeam_.translation_);
+	// 変換行列を定数バッファに転送
+	worldTransformBeam_.TransferMatrix();
+}
+
+// ビーム移動
+void GameScene::BeamMove() {
+
+	// 存在フラグが1ならば
+	if (beamFlag_ == 1) {
+		// ビームが奥へ移動する。
+		worldTransformBeam_.translation_.z += 0.3f;
+		// 回転
+		worldTransformBeam_.rotation_.x += 0.1f;
+	}
+}
+
+// ビーム発生（発射）
+void GameScene::BeamBorn() {
+
+	// スペースキーを押したらビームを発射する
+	if (input_->PushKey(DIK_SPACE)) {
+		// 存在フラグが０ならば
+		if (beamFlag_ == 0) {
+			// ビーム座標にプレイヤー座標を代入する
+			worldTransformBeam_.translation_.x = worldTransformPlayer_.translation_.x;
+			worldTransformBeam_.translation_.z = worldTransformPlayer_.translation_.z;
+			// 存在フラグを１にする。
+			beamFlag_ = 1;
+		}
+	}
+
+	// 画面端まで移動したら
+	if (worldTransformBeam_.translation_.z > 40) {
+		// 存在フラグを０にする。
+		beamFlag_ = 0;
+	}
 }

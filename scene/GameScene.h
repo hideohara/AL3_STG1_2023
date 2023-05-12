@@ -41,6 +41,9 @@ public: // メンバ関数
 	void Draw();
 
 	void PlayerUpdate(); // プレイヤー更新
+	void BeamUpdate();   // ビーム更新
+	void BeamMove();     // ビーム移動
+	void BeamBorn();     // ビーム発生
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -67,4 +70,11 @@ private: // メンバ変数
 	uint32_t textureHandlePlayer_ = 0;
 	Model* modelPlayer_ = nullptr;
 	WorldTransform worldTransformPlayer_;
+
+	// ビ－ム
+	uint32_t textureHandleBeam_ = 0;
+	Model* modelBeam_ = nullptr;
+	WorldTransform worldTransformBeam_;
+
+	int beamFlag_ = 0; // ビーム存在フラグ（0:存在しない、1:存在する）
 };
