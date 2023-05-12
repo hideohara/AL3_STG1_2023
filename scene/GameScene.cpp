@@ -12,10 +12,13 @@ GameScene::~GameScene() {
 	delete modelStage_;  // ステージ
 	delete modelPlayer_; // プレイヤー
 	delete modelBeam_;   // ビーム
+	delete modelEnemy_;  // 敵
 }
 
 // 初期化
 void GameScene::Initialize() {
+
+	srand((unsigned int)time(NULL));
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -56,12 +59,19 @@ void GameScene::Initialize() {
 	modelBeam_ = Model::Create();
 	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
 	worldTransformBeam_.Initialize();
+
+	// 敵
+	textureHandleEnemy_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::Create();
+	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformEnemy_.Initialize();
 }
 
 // 更新
 void GameScene::Update() {
 	PlayerUpdate(); // プレイヤー更新
 	BeamUpdate();   // ビーム更新
+	EnemyUpdate();  // 敵更新
 }
 
 // 表示
@@ -105,6 +115,12 @@ void GameScene::Draw() {
 	// 存在フラグが1ならば
 	if (beamFlag_ == 1) {
 		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}
+
+	// 敵
+	// 存在フラグが1ならば
+	if (enemyFlag_ == 1) {
+		modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
 	}
 
 	// 3Dオブジェクト描画後処理
@@ -191,6 +207,12 @@ void GameScene::BeamMove() {
 		worldTransformBeam_.translation_.z += 0.3f;
 		// 回転
 		worldTransformBeam_.rotation_.x += 0.1f;
+
+		// 画面端まで移動したら
+		if (worldTransformBeam_.translation_.z > 40) {
+			// 存在フラグを０にする。
+			beamFlag_ = 0;
+		}
 	}
 }
 
@@ -208,10 +230,61 @@ void GameScene::BeamBorn() {
 			beamFlag_ = 1;
 		}
 	}
+}
 
-	// 画面端まで移動したら
-	if (worldTransformBeam_.translation_.z > 40) {
-		// 存在フラグを０にする。
-		beamFlag_ = 0;
+// —------------------------------------------
+// 敵
+// —------------------------------------------
+
+// 敵更新
+void GameScene::EnemyUpdate() {
+	// 移動
+	EnemyMove();
+
+	// 発生
+	EnemyBorn();
+
+	// 変換行列を更新
+	worldTransformEnemy_.matWorld_ = MakeAffineMatrix(
+	    worldTransformEnemy_.scale_, worldTransformEnemy_.rotation_,
+	    worldTransformEnemy_.translation_);
+	// 変換行列を定数バッファに転送
+	worldTransformEnemy_.TransferMatrix();
+}
+
+// 敵移動
+void GameScene::EnemyMove() {
+	// 存在フラグが1ならば
+	if (enemyFlag_ == 1) {
+		// 敵が手前へ移動する。
+		worldTransformEnemy_.translation_.z -= 0.2f;
+		// 回転
+		worldTransformEnemy_.rotation_.x -= 0.1f;
+		// 画面端まで移動したら
+		if (worldTransformEnemy_.translation_.z < -5) {
+			// 存在フラグを０にする。
+			enemyFlag_ = 0;
+		}
+	}
+}
+
+// 敵発生
+void GameScene::EnemyBorn() {
+
+	// 敵が存在しなければ（存在フラグが0ならば）、
+	// 存在フラグを1にして、z座標を40にする
+
+	// 存在フラグが０ならば
+	if (enemyFlag_ == 0) {
+
+		// 乱数でＸ座標の指定
+		int x = rand() % 80; // 80は4の10倍の2倍
+		float x2 = (float)x / 10 - 4;
+		// 10で割り、4を引く
+		worldTransformEnemy_.translation_.x = x2;
+		// 奥から発生
+		worldTransformEnemy_.translation_.z = 40;
+		// 存在フラグを１にする。
+		enemyFlag_ = 1;
 	}
 }
