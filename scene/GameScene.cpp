@@ -65,6 +65,10 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::Create();
 	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformEnemy_.Initialize();
+
+	// デッバクテキスト
+	debugText_ = DebugText::GetInstance();
+	debugText_->Initialize();
 }
 
 // 更新
@@ -72,6 +76,7 @@ void GameScene::Update() {
 	PlayerUpdate(); // プレイヤー更新
 	BeamUpdate();   // ビーム更新
 	EnemyUpdate();  // 敵更新
+	Collision();    // 衝突判定
 }
 
 // 表示
@@ -134,6 +139,17 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	// ゲームスコア
+	char str[100];
+	sprintf_s(str, "SCORE %d", gameScore_);
+	debugText_->Print(str, 200, 10, 2);
+
+	// ライフ
+	sprintf_s(str, "LIFE %d", playerLife_);
+	debugText_->Print(str, 800, 10, 2);
+
+	debugText_->DrawAll();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -286,5 +302,59 @@ void GameScene::EnemyBorn() {
 		worldTransformEnemy_.translation_.z = 40;
 		// 存在フラグを１にする。
 		enemyFlag_ = 1;
+	}
+}
+
+// ------------------------------------------------
+// 衝突判定
+// ------------------------------------------------
+
+// 衝突判定
+void GameScene::Collision() {
+	// 衝突判定（プレイヤーと敵）
+	CollisionPlayerEnemy();
+	// 衝突判定（ビームと敵）
+	CollisionBeamEnemy();
+}
+
+// 衝突判定（プレイヤーと敵）
+void GameScene::CollisionPlayerEnemy() {
+	// 敵が存在すれば
+	if (enemyFlag_ == 1) {
+		// 差を求める
+		float dx = abs(worldTransformPlayer_.translation_.x - worldTransformEnemy_.translation_.x);
+		float dz = abs(worldTransformPlayer_.translation_.z - worldTransformEnemy_.translation_.z);
+
+		// 衝突したら
+		if (dx < 1 && dz < 1) {
+			// 存在しない
+			enemyFlag_ = 0;
+			// ライフ
+			playerLife_ -= 1;
+		}
+	}
+}
+
+// 衝突判定（ビームと敵）
+void GameScene::CollisionBeamEnemy() {
+	// ビームが存在すれば
+	if (beamFlag_ == 1) {
+		// 敵が存在すれば
+		if (enemyFlag_ == 1) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformBeam_.translation_.x - worldTransformEnemy_.translation_.x);
+			float dz =
+			    abs(worldTransformBeam_.translation_.z - worldTransformEnemy_.translation_.z);
+
+			// 衝突したら
+			if (dx < 1 && dz < 1) {
+				// 存在しない
+				enemyFlag_ = 0;
+				beamFlag_ = 0;
+				// スコア加算
+				gameScore_ += 1;
+			}
+		}
 	}
 }
