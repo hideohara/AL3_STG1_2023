@@ -53,6 +53,11 @@ public: // メンバ関数
 	void CollisionPlayerEnemy(); // 衝突判定（プレイヤーと敵）
 	void CollisionBeamEnemy();   // 衝突判定（ビームと敵）
 
+	void GamePlayUpdate();     // ゲームプレイ更新
+	void GamePlayDraw3D();     // ゲームプレイ3D描画
+	void GamePlayDraw2DBack(); // ゲームプレイ2D背景描画
+	void GamePlayDraw2DNear(); // ゲームプレイ2D近景描画
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -96,4 +101,6 @@ private: // メンバ変数
 
 	int gameScore_ = 0;  // ゲームスコア
 	int playerLife_ = 3; // プレイヤーライフ
+
+	int sceneMode_ = 0; // シーンモード（0:ゲームプレイ　1:タイトル）
 };
