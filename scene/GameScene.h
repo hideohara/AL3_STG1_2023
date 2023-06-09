@@ -58,6 +58,14 @@ public: // メンバ関数
 	void GamePlayDraw2DBack(); // ゲームプレイ2D背景描画
 	void GamePlayDraw2DNear(); // ゲームプレイ2D近景描画
 
+	void TitleUpdate();     // タイトル更新
+	void TitleDraw2DNear(); // タイトル2D描画
+
+	void GameOverUpdate();     // ゲームオーバ－更新
+	void GameOverDraw2DNear(); // ゲームオーバ－2D描画
+
+	void GamePlayStart(); // ゲームプレイ開始
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -102,5 +110,19 @@ private: // メンバ変数
 	int gameScore_ = 0;  // ゲームスコア
 	int playerLife_ = 3; // プレイヤーライフ
 
-	int sceneMode_ = 0; // シーンモード（0:ゲームプレイ　1:タイトル）
+	int sceneMode_ = 1; // シーンモード（0:ゲームプレイ　1:タイトル）
+
+	// タイトル（スプライト）
+	uint32_t textureHandleTitle_ = 0;
+	Sprite* spriteTitle_ = nullptr;
+
+	// ゲームオーバー（スプライト）
+	uint32_t textureHandleGameOver_ = 0;
+	Sprite* spriteGameOver_ = nullptr;
+
+	// エンター（スプライト）
+	uint32_t textureHandleEnter_ = 0;
+	Sprite* spriteEnter_ = nullptr;
+
+	int gameTimer_ = 0; // ゲームタイマー
 };
