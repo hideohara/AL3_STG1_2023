@@ -95,15 +95,15 @@ private: // メンバ変数
 	// ビ－ム
 	uint32_t textureHandleBeam_ = 0;
 	Model* modelBeam_ = nullptr;
-	WorldTransform worldTransformBeam_;
+	WorldTransform worldTransformBeam_[10];
 
 	// 敵
 	uint32_t textureHandleEnemy_ = 0;
 	Model* modelEnemy_ = nullptr;
-	WorldTransform worldTransformEnemy_;
+	WorldTransform worldTransformEnemy_[10];
 
-	int beamFlag_ = 0;  // ビーム存在フラグ（0:存在しない、1:存在する）
-	int enemyFlag_ = 0; // 敵存在フラグ（0:存在しない、1:存在する）
+	int beamFlag_[10] = {};  // ビーム存在フラグ（0:存在しない、1:存在する）
+	int enemyFlag_[10] = {}; // 敵存在フラグ（0:存在しない、1:存在する）
 
 	DebugText* debugText_ = nullptr;
 
@@ -125,4 +125,8 @@ private: // メンバ変数
 	Sprite* spriteEnter_ = nullptr;
 
 	int gameTimer_ = 0; // ゲームタイマー
+
+	int beamTimer_ = 0; // ビーム発射タイマー
+
+	float enemySpeed_[10] = {}; // 敵のスピード
 };

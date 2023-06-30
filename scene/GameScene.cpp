@@ -61,14 +61,18 @@ void GameScene::Initialize() {
 	// ビーム
 	textureHandleBeam_ = TextureManager::Load("beam.png");
 	modelBeam_ = Model::Create();
-	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
-	worldTransformBeam_.Initialize();
+	for (int i = 0; i < 10; i++) {
+		worldTransformBeam_[i].scale_ = {0.3f, 0.3f, 0.3f};
+		worldTransformBeam_[i].Initialize();
+	}
 
 	// 敵
 	textureHandleEnemy_ = TextureManager::Load("enemy.png");
 	modelEnemy_ = Model::Create();
-	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
-	worldTransformEnemy_.Initialize();
+	for (int i = 0; i < 10; i++) {
+		worldTransformEnemy_[i].scale_ = {0.5f, 0.5f, 0.5f};
+		worldTransformEnemy_[i].Initialize();
+	}
 
 	// デッバクテキスト
 	debugText_ = DebugText::GetInstance();
@@ -238,43 +242,62 @@ void GameScene::BeamUpdate() {
 	BeamBorn();
 
 	// 変換行列を更新
-	worldTransformBeam_.matWorld_ = MakeAffineMatrix(
-	    worldTransformBeam_.scale_, worldTransformBeam_.rotation_,
-	    worldTransformBeam_.translation_);
-	// 変換行列を定数バッファに転送
-	worldTransformBeam_.TransferMatrix();
+	for (int i = 0; i < 10; i++) {
+		worldTransformBeam_[i].matWorld_ = MakeAffineMatrix(
+		    worldTransformBeam_[i].scale_, worldTransformBeam_[i].rotation_,
+		    worldTransformBeam_[i].translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformBeam_[i].TransferMatrix();
+	}
 }
 
 // ビーム移動
 void GameScene::BeamMove() {
+	for (int i = 0; i < 10; i++) {
+		// 存在フラグが1ならば
+		if (beamFlag_[i] == 1) {
+			// ビームが奥へ移動する。
+			worldTransformBeam_[i].translation_.z += 0.3f;
+			// 回転
+			worldTransformBeam_[i].rotation_.x += 0.1f;
 
-	// 存在フラグが1ならば
-	if (beamFlag_ == 1) {
-		// ビームが奥へ移動する。
-		worldTransformBeam_.translation_.z += 0.3f;
-		// 回転
-		worldTransformBeam_.rotation_.x += 0.1f;
-
-		// 画面端まで移動したら
-		if (worldTransformBeam_.translation_.z > 40) {
-			// 存在フラグを０にする。
-			beamFlag_ = 0;
+			// 画面端まで移動したら
+			if (worldTransformBeam_[i].translation_.z > 40) {
+				// 存在フラグを０にする。
+				beamFlag_[i] = 0;
+			}
 		}
 	}
 }
 
 // ビーム発生（発射）
 void GameScene::BeamBorn() {
+	// 発射タイマーが0ならば
+	if (beamTimer_ == 0) {
+		// スペースキーを押したらビームを発射する
+		if (input_->PushKey(DIK_SPACE)) {
+			for (int i = 0; i < 10; i++) {
+				// 存在フラグが０ならば
+				if (beamFlag_[i] == 0) {
+					// ビーム座標にプレイヤー座標を代入する
+					worldTransformBeam_[i].translation_.x = worldTransformPlayer_.translation_.x;
+					worldTransformBeam_[i].translation_.z = worldTransformPlayer_.translation_.z;
+					// 存在フラグを１にする。
+					beamFlag_[i] = 1;
 
-	// スペースキーを押したらビームを発射する
-	if (input_->PushKey(DIK_SPACE)) {
-		// 存在フラグが０ならば
-		if (beamFlag_ == 0) {
-			// ビーム座標にプレイヤー座標を代入する
-			worldTransformBeam_.translation_.x = worldTransformPlayer_.translation_.x;
-			worldTransformBeam_.translation_.z = worldTransformPlayer_.translation_.z;
-			// 存在フラグを１にする。
-			beamFlag_ = 1;
+					// タイマーを１にする
+					beamTimer_ = 1;
+					// １個発生で終了
+					break;
+				}
+			}
+		}
+	} else {
+		// 発射タイマーが1以上
+		// 10を超えると再び発射が可能
+		beamTimer_++;
+		if (beamTimer_ > 10) {
+			beamTimer_ = 0;
 		}
 	}
 }
@@ -292,47 +315,74 @@ void GameScene::EnemyUpdate() {
 	EnemyBorn();
 
 	// 変換行列を更新
-	worldTransformEnemy_.matWorld_ = MakeAffineMatrix(
-	    worldTransformEnemy_.scale_, worldTransformEnemy_.rotation_,
-	    worldTransformEnemy_.translation_);
-	// 変換行列を定数バッファに転送
-	worldTransformEnemy_.TransferMatrix();
+	for (int i = 0; i < 10; i++) {
+		worldTransformEnemy_[i].matWorld_ = MakeAffineMatrix(
+		    worldTransformEnemy_[i].scale_, worldTransformEnemy_[i].rotation_,
+		    worldTransformEnemy_[i].translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformEnemy_[i].TransferMatrix();
+	}
 }
 
 // 敵移動
 void GameScene::EnemyMove() {
-	// 存在フラグが1ならば
-	if (enemyFlag_ == 1) {
-		// 敵が手前へ移動する。
-		worldTransformEnemy_.translation_.z -= 0.2f;
-		// 回転
-		worldTransformEnemy_.rotation_.x -= 0.1f;
-		// 画面端まで移動したら
-		if (worldTransformEnemy_.translation_.z < -5) {
-			// 存在フラグを０にする。
-			enemyFlag_ = 0;
+	for (int i = 0; i < 10; i++) {
+		// 存在フラグが1ならば
+		if (enemyFlag_[i] == 1) {
+			// 敵が手前へ移動する。
+			worldTransformEnemy_[i].translation_.z -= 0.2f;
+			// 回転
+			worldTransformEnemy_[i].rotation_.x -= 0.1f;
+			// 横移動
+			worldTransformEnemy_[i].translation_.x += enemySpeed_[i];
+			// ステージ右端で反転
+			if (worldTransformEnemy_[i].translation_.x > 4) {
+				enemySpeed_[i] = -0.1f;
+			}
+			// ステージ左端で反転
+			if (worldTransformEnemy_[i].translation_.x < -4) {
+				enemySpeed_[i] = 0.1f;
+			}
+			// 画面端まで移動したら
+			if (worldTransformEnemy_[i].translation_.z < -5) {
+				// 存在フラグを０にする。
+				enemyFlag_[i] = 0;
+			}
 		}
 	}
 }
 
 // 敵発生
 void GameScene::EnemyBorn() {
+	// 乱数で発生
+	if (rand() % 10 == 0) {
 
-	// 敵が存在しなければ（存在フラグが0ならば）、
-	// 存在フラグを1にして、z座標を40にする
+		for (int i = 0; i < 10; i++) {
+			// 敵が存在しなければ（存在フラグが0ならば）、
+			// 存在フラグを1にして、z座標を40にする
 
-	// 存在フラグが０ならば
-	if (enemyFlag_ == 0) {
+			// 存在フラグが０ならば
+			if (enemyFlag_[i] == 0) {
 
-		// 乱数でＸ座標の指定
-		int x = rand() % 80; // 80は4の10倍の2倍
-		float x2 = (float)x / 10 - 4;
-		// 10で割り、4を引く
-		worldTransformEnemy_.translation_.x = x2;
-		// 奥から発生
-		worldTransformEnemy_.translation_.z = 40;
-		// 存在フラグを１にする。
-		enemyFlag_ = 1;
+				// 乱数でＸ座標の指定
+				int x = rand() % 80; // 80は4の10倍の2倍
+				float x2 = (float)x / 10 - 4;
+				// 10で割り、4を引く
+				worldTransformEnemy_[i].translation_.x = x2;
+				// 奥から発生
+				worldTransformEnemy_[i].translation_.z = 40;
+				// 敵スピード
+				if (rand() % 2 == 0) {
+					enemySpeed_[i] = 0.1f;
+				} else {
+					enemySpeed_[i] = -0.1f;
+				}
+				// 存在フラグを１にする。
+				enemyFlag_[i] = 1;
+				// ループ終了
+				break;
+			}
+		}
 	}
 }
 
@@ -350,41 +400,56 @@ void GameScene::Collision() {
 
 // 衝突判定（プレイヤーと敵）
 void GameScene::CollisionPlayerEnemy() {
-	// 敵が存在すれば
-	if (enemyFlag_ == 1) {
-		// 差を求める
-		float dx = abs(worldTransformPlayer_.translation_.x - worldTransformEnemy_.translation_.x);
-		float dz = abs(worldTransformPlayer_.translation_.z - worldTransformEnemy_.translation_.z);
 
-		// 衝突したら
-		if (dx < 1 && dz < 1) {
-			// 存在しない
-			enemyFlag_ = 0;
-			// ライフ
-			playerLife_ -= 1;
+	for (int i = 0; i < 10; i++) {
+
+		// 敵が存在すれば
+		if (enemyFlag_[i] == 1) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformPlayer_.translation_.x - worldTransformEnemy_[i].translation_.x);
+			float dz =
+			    abs(worldTransformPlayer_.translation_.z - worldTransformEnemy_[i].translation_.z);
+
+			// 衝突したら
+			if (dx < 1 && dz < 1) {
+				// 存在しない
+				enemyFlag_[i] = 0;
+				// ライフ
+				playerLife_ -= 1;
+			}
 		}
 	}
 }
 
 // 衝突判定（ビームと敵）
 void GameScene::CollisionBeamEnemy() {
-	// ビームが存在すれば
-	if (beamFlag_ == 1) {
+	// 敵の数ループする
+	for (int e = 0; e < 10; e++) {
 		// 敵が存在すれば
-		if (enemyFlag_ == 1) {
-			// 差を求める
-			float dx =
-			    abs(worldTransformBeam_.translation_.x - worldTransformEnemy_.translation_.x);
-			float dz =
-			    abs(worldTransformBeam_.translation_.z - worldTransformEnemy_.translation_.z);
+		if (enemyFlag_[e] == 1) {
+			// ビームの数ループする
+			for (int b = 0; b < 10; b++) {
+				// ビームが存在すれば
+				if (beamFlag_[b] == 1) {
 
-			// 衝突したら
-			if (dx < 1 && dz < 1) {
-				// 存在しない
-				enemyFlag_ = 0;
-				beamFlag_ = 0;
-				// スコア加算
-				gameScore_ += 1;
+					// 差を求める
+					float dx =
+					    abs(worldTransformBeam_[b].translation_.x -
+					        worldTransformEnemy_[e].translation_.x);
+					float dz =
+					    abs(worldTransformBeam_[b].translation_.z -
+					        worldTransformEnemy_[e].translation_.z);
+
+					// 衝突したら
+					if (dx < 1 && dz < 1) {
+						// 存在しない
+						enemyFlag_[e] = 0;
+						beamFlag_[b] = 0;
+						// スコア加算
+						gameScore_ += 1;
+					}
+				}
 			}
 		}
 	}
@@ -412,9 +477,12 @@ void GameScene::GamePlayUpdate() {
 void GameScene::GamePlayStart() {
 	gameScore_ = 0;
 	playerLife_ = 3;
-	beamFlag_ = 0;
-	enemyFlag_ = 0;
-
+	for (int i = 0; i < 10; i++) {
+		beamFlag_[i] = 0;
+	}
+	for (int i = 0; i < 10; i++) {
+		enemyFlag_[i] = 0;
+	}
 	worldTransformPlayer_.translation_.x = 0;
 	PlayerUpdate();
 }
@@ -428,15 +496,19 @@ void GameScene::GamePlayDraw3D() {
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
 
 	// ビーム
-	// 存在フラグが1ならば
-	if (beamFlag_ == 1) {
-		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	for (int i = 0; i < 10; i++) {
+		// 存在フラグが1ならば
+		if (beamFlag_[i] == 1) {
+			modelBeam_->Draw(worldTransformBeam_[i], viewProjection_, textureHandleBeam_);
+		}
 	}
 
 	// 敵
-	// 存在フラグが1ならば
-	if (enemyFlag_ == 1) {
-		modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
+	for (int i = 0; i < 10; i++) {
+		// 存在フラグが1ならば
+		if (enemyFlag_[i] == 1) {
+			modelEnemy_->Draw(worldTransformEnemy_[i], viewProjection_, textureHandleEnemy_);
+		}
 	}
 }
 // ゲームプレイ2D近景描画
