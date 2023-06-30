@@ -49,6 +49,7 @@ public: // メンバ関数
 	void EnemyUpdate();          // 敵更新
 	void EnemyMove();            // 敵移動
 	void EnemyBorn();            // 敵発生
+	void EnemyJump();            // 敵ジャンプ
 	void Collision();            // 衝突判定
 	void CollisionPlayerEnemy(); // 衝突判定（プレイヤーと敵）
 	void CollisionBeamEnemy();   // 衝突判定（ビームと敵）
@@ -65,6 +66,8 @@ public: // メンバ関数
 	void GameOverDraw2DNear(); // ゲームオーバ－2D描画
 
 	void GamePlayStart(); // ゲームプレイ開始
+
+	void StageUpdate(); // ステージ更新
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -85,7 +88,7 @@ private: // メンバ変数
 	// ステージ
 	uint32_t textureHandleStage_ = 0;
 	Model* modelStage_ = nullptr;
-	WorldTransform worldTransformStage_;
+	WorldTransform worldTransformStage_[20];
 
 	// プレイヤー
 	uint32_t textureHandlePlayer_ = 0;
@@ -137,4 +140,6 @@ private: // メンバ変数
 	uint32_t soundDataHandleEnemyHitSE_ = 0;  // 敵ヒットSE
 	uint32_t soundDataHandlePlayerHitSE_ = 0; // プレイヤーヒットSE
 	uint32_t voiceHandleBGM_ = 0;             // 音声再生ハンドル
+
+	float enemyJumpSpeed_[10] = {}; // 敵ジャンプの移動速度
 };
