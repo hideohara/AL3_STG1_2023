@@ -69,6 +69,8 @@ public: // メンバ関数
 
 	void StageUpdate(); // ステージ更新
 
+	void DrawScore(); // スコア表示
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -142,4 +144,18 @@ private: // メンバ変数
 	uint32_t voiceHandleBGM_ = 0;             // 音声再生ハンドル
 
 	float enemyJumpSpeed_[10] = {}; // 敵ジャンプの移動速度
+
+	// スコア数値（スプライト）
+	uint32_t textureHandleNumber_ = 0;
+	Sprite* spriteNumber_[5] = {};
+
+	// スコア文字（スプライト）
+	uint32_t textureHandleScore_ = 0;
+	Sprite* spriteScore_ = nullptr;
+
+	// ライフ
+	Sprite* spriteLife_[3] = {};
+
+	// プレイヤー点滅タイマー
+	int playerTimer_ = 0;
 };
