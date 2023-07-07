@@ -65,8 +65,9 @@ void GameScene::Initialize() {
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
-	modelPlayer_ = Model::Create();
+	modelPlayer_ = Model::CreateFromOBJ("chr_sword");
 	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformPlayer_.translation_.y = -0.5f;
 	worldTransformPlayer_.Initialize();
 
 	// ビーム
@@ -323,7 +324,8 @@ void GameScene::BeamBorn() {
 				if (beamFlag_[i] == 0) {
 					// ビーム座標にプレイヤー座標を代入する
 					worldTransformBeam_[i].translation_.x = worldTransformPlayer_.translation_.x;
-					worldTransformBeam_[i].translation_.z = worldTransformPlayer_.translation_.z;
+					worldTransformBeam_[i].translation_.z =
+					    worldTransformPlayer_.translation_.z + 1;
 					// 存在フラグを１にする。
 					beamFlag_[i] = 1;
 
@@ -583,7 +585,7 @@ void GameScene::GamePlayDraw3D() {
 	}
 	// プレイヤー
 	if (playerTimer_ % 4 < 2) {
-		modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
+		modelPlayer_->Draw(worldTransformPlayer_, viewProjection_);
 	}
 
 	// ビーム
